@@ -123,7 +123,46 @@ namespace NorthwindWebAPI.Controllers
                 .OrderBy(e => e.Mes);
         }
 
-        
+
+        //GET: api/  TOP 5 DE PRODUCTOS VENDIDOS EN UN AÑO POR TRIMESTRE
+
+        [HttpGet]
+        [Route("productos_trim")]
+        public IEnumerable<Object> GetTop5Productos(int ano, int trimestre)
+        {
+
+            return _context.Products.Where(p => p.CompanyId == 1)
+                .Join(_context.Movementdetails,
+                p => p.ProductId,
+                md => md.ProductId,
+                (p, md) => new
+                {
+                    Producto = p.ProductName,
+                    IdMovimiento = md.MovementId,
+                    cantidad = md.Quantity
+                })
+                .Join(_context.Movements,
+                md => md.IdMovimiento,
+                mo => mo.MovementId,
+                (md, mo) => new
+                {
+                    Producto = md.Producto,
+                    Anio = mo.Date.Year,
+                    Trim = Math.Ceiling(mo.Date.Month / 3.0),
+                    Tipo = mo.Type,
+                    quantity = md.cantidad
+                }).Where(mo => mo.Anio == ano && mo.Trim == trimestre && mo.Tipo == "VENTA")
+                .GroupBy(p => p.Producto)
+                .Select(p => new
+                {
+                    Producto = p.Key,
+                    Cantidad = p.Sum(c => c.quantity)
+                })
+                .OrderByDescending(p => p.Cantidad)
+                .Take(5);
+        }
+
+
 
         // GET: api/Employees/5
         [HttpGet("{id}")]

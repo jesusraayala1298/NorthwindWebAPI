@@ -38,7 +38,7 @@ namespace NorthwindWebAPI
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost");
+                        policy.WithOrigins("http://127.0.0.1:5500");
                     });
             });
 
