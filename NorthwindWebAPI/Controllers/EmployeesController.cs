@@ -84,6 +84,47 @@ namespace NorthwindWebAPI.Controllers
                 .Take(5);
 
         }
+        // GET: api/
+        [HttpGet]
+        [Route("Ventas_almacen")]
+        public IEnumerable<Object> GetVentas_Almacen()
+        {
+            return _context.Products
+                .Where(p => p.CompanyId == 1)
+                .Join(_context.Movementdetails,
+                    p => p.ProductId,
+                    md => md.ProductId,
+                    (p, md) => new
+                    {
+                        Nombre = p.ProductName,
+                        cantidad = md.Quantity,
+                        Movimiento = md.MovementId
+                    })
+                .Join(_context.Movements,
+                    md => md.Movimiento,
+                    m => m.MovementId,
+                    (md, m) => new
+                    {
+                        Nombre = md.Nombre,
+                        Almacen = m.OriginWarehouseId,
+                        cantidad = md.cantidad
+                    })
+                .Join(_context.Warehouses,
+                    m => m.Almacen,
+                    w => w.WarehouseId,
+                    (m, w) => new
+                    {
+                        Nombre = m.Nombre,
+                        cantidad = m.cantidad,
+                        NombreAlmacen=w.Description
+                    })
+                .GroupBy(g =>new {g.NombreAlmacen, g.Nombre })
+                .Select(p =>new {
+                    Almacen = p.Key.NombreAlmacen,
+                    Nombre=p.Key.Nombre,
+                    cantidad = p.Sum(c => c.cantidad)
+                }).OrderBy(e => e.Almacen);
+        }
 
         // GET: api/
         [HttpGet]

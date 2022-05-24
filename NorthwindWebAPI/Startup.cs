@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -38,7 +39,7 @@ namespace NorthwindWebAPI
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        policy.WithOrigins("http://127.0.0.1:5500");
+                        policy.WithOrigins("http://localhost");
                     });
             });
 
